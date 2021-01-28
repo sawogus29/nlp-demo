@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css"
+    href="{{ url_for('static', filename='index.css') }}"/>
+</head>
+<body>
+    <h1>NLP Demo Page</h1>
+    <form id="myform" method="post" action="{{ url_for('pipe') }}">
+        <label for="input_str">Input:</label>
+        <textarea type="text" name="input_str" id="input_str" cols="100" rows="10"></textarea>
+        <input type="submit" value="Submit" style="width: 100px; height: 50px;"/>
+    </form>
+    <div id="wrapper">
+        <div id="root">
+        {% if doc is defined %}
+        {% for sent in doc.sents %}
+            <p id="sent-{{ loop.index }}" data-index="{{ loop.index }}">
+                {{ sent._.generate_html()|safe }}
+            </p>
+        {% endfor %}
+        {% endif %}
+        </div>
+        <div id="debug"></div>
+    </div>
+    <div id="hidden-debug" style="display:none">
+    {% if doc is defined %}
+    {% for sent in doc.sents %}
+        <div id="debug-{{ loop.index }}">
+            <div> {{ draw_dep_tree(sent)|safe }} </div>
+            <table>
+                <tr> <th>MWE</th> </tr>
+                <tr> <th>token</th> <th>iob tag</th> <th>raw result</th> </tr>
+                {% for token in sent %}
+                <tr>
+                    <td>{{ token.text }}</td>
+                    <td>{{ token._.mwe_iob }}</td>
+                    <td>{{ token._.mwe_raw_iob }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+    {% endif %}
+    </div>
+    <script>
+        // document.querySelector("#myform").addEventListener("submit", onSubmit)
+        // function onSubmit(e){
+        //     e.preventDefault();
+        //     formData = new FormData(e.target);
+        //     var xhttp = new XMLHttpRequest();
+        //     xhttp.onreadystatechange = function() {
+        //         if (this.readyState == 4 && this.status == 200) {
+        //             document.getElementById("root").innerHTML = this.responseText;
+        //         }
+        //     };
+        //     xhttp.open("POST", "{{ url_for('pipe') }}");
+        //     xhttp.send(formData);
+        //     return false;
+        // }
+        ps = document.querySelectorAll("#root > p");
+        for(let p of ps){
+            p.addEventListener("click", function(e){
+                let i = e.currentTarget.dataset.index;
+                dbg_elem = document.querySelector("#debug-"+i);
+                dbg = document.querySelector("#debug");
+                dbg.innerHTML = '';
+                dbg.appendChild(dbg_elem.cloneNode(true));
+            });
+        }
+    </script>
+</body>
+</html>
