@@ -89,8 +89,13 @@ def doc_generate_html(doc, word_tag=True):
     return ''.join(buffer)
 
 def generate_html(sent, word_tag=True):
-    def cls2tag(cls):
-        return f'<span class="{cls}">', '</span>'
+    def cls2tag(cls, attrs=None):
+        attr_str=''
+        if attrs is not None:
+            attr_strings = [f'{k}="{v}"' for k, v in attrs.items()]
+            attr_str = ' '.join(attr_strings)
+
+        return f'<span class="{cls}" {attr_str}>', '</span>'
     buffer = []
     stack = []
 
@@ -105,7 +110,11 @@ def generate_html(sent, word_tag=True):
                 stack.append(end_tag)
         
         if word_tag:
-            start_tag, end_tag = cls2tag('word')
+            if token._.mwe is not None:
+                mwe_attr_str = ' '.join([tk.text for tk in token._.mwe])
+                start_tag, end_tag = cls2tag('word', {'data-mwe':mwe_attr_str})
+            else:
+                start_tag, end_tag = cls2tag('word')
             buffer.append(start_tag)
             buffer.append(token.text)
             buffer.append(end_tag)

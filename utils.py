@@ -34,3 +34,10 @@ def draw_dep_tree(span):
         lambda current: current.children,
         lambda current: current.text,
         lambda current: current.dep_)
+
+def preprocess(input_str):
+    out = input_str
+    out = out.replace('“','"')
+    out = out.replace('”','"')
+    ps = out.splitlines()
+    return filter(lambda x: True if len(x) > 0 else False, ps)

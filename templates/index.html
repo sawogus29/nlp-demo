@@ -6,43 +6,55 @@
     <title>Document</title>
     <link rel="stylesheet" type="text/css"
     href="{{ url_for('static', filename='index.css') }}"/>
+    <script src="http://ariutta.github.io/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
 </head>
 <body>
     <h1>NLP Demo Page</h1>
     <form id="myform" method="post" action="{{ url_for('pipe') }}">
         <label for="input_str">Input:</label>
-        <textarea type="text" name="input_str" id="input_str" cols="100" rows="10"></textarea>
+        <textarea type="text" name="input_str" id="input_str" cols="100" rows="10">{{ request.form['input_str'] }}</textarea>
         <input type="submit" value="Submit" style="width: 100px; height: 50px;"/>
     </form>
     <div id="wrapper">
         <div id="root">
-        {% if doc is defined %}
+        {% if docs is defined %}
+        {% for doc in docs %}
+        {% set outer_loop = loop %}
         {% for sent in doc.sents %}
-            <p id="sent-{{ loop.index }}" data-index="{{ loop.index }}">
+            <p id="sent-{{ outer_loop.index }}-{{ loop.index }}" data-index="{{outer_loop.index }}-{{ loop.index }}">
                 {{ sent._.generate_html()|safe }}
             </p>
+        {% endfor %}
         {% endfor %}
         {% endif %}
         </div>
         <div id="debug"></div>
     </div>
     <div id="hidden-debug" style="display:none">
-    {% if doc is defined %}
+    {% if docs is defined %}
+    {% for doc in docs %}
+    {% set outer_loop = loop %}
     {% for sent in doc.sents %}
-        <div id="debug-{{ loop.index }}">
-            <div> {{ draw_dep_tree(sent)|safe }} </div>
-            <table>
-                <tr> <th>MWE</th> </tr>
-                <tr> <th>token</th> <th>iob tag</th> <th>raw result</th> </tr>
-                {% for token in sent %}
-                <tr>
-                    <td>{{ token.text }}</td>
-                    <td>{{ token._.mwe_iob }}</td>
-                    <td>{{ token._.mwe_raw_iob }}</td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div id="debug-{{ outer_loop.index }}-{{ loop.index }}">
+            <div class="mwe-container">
+                <table>
+                    <tr> <th colspan="3">MWE</th> </tr>
+                    {% for mwe in sent._.mwes %}
+                    <tr><td colspan="3">{% for tk in mwe %}{{tk.text}} {%endfor%}</td></tr>
+                    {% endfor %}
+                    <tr> <th>token</th> <th>iob tag</th> <th>raw result</th> </tr>
+                    {% for token in sent %}
+                    <tr>
+                        <td>{{ token.text }}</td>
+                        <td>{{ token._.mwe_iob }}</td>
+                        <td>{{ token._.mwe_raw_iob }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            <div class="dep-container"> {{ draw_dep_tree(sent)|safe }} </div>
         </div>
+    {% endfor %}
     {% endfor %}
     {% endif %}
     </div>
@@ -67,8 +79,18 @@
                 let i = e.currentTarget.dataset.index;
                 dbg_elem = document.querySelector("#debug-"+i);
                 dbg = document.querySelector("#debug");
+                if(dbg.querySelector("svg") != null){
+                    svgPanZoom(dbg.querySelector("svg")).destroy()
+                }
                 dbg.innerHTML = '';
                 dbg.appendChild(dbg_elem.cloneNode(true));
+                
+                svgPanZoom(dbg.querySelector("svg"), {
+                  zoomEnabled: true,
+                  controlIconsEnabled: true,
+                  fit: true,
+                  center: true
+                }); 
             });
         }
     </script>

@@ -39,6 +39,11 @@
     text-shadow: 0 0 3px lightblue;
 }
 
+.word[data-mwe] {
+    text-decoration:underline;
+    font-weight:bold;
+}
+
 #wrapper {
     display: flex;
     height:80vh;
@@ -54,5 +59,38 @@
 }
 
 #debug {
-    flex: 2;
+    flex: 2.5;
+}
+
+#debug > div {
+    display:flex;
+    height:98%;
+}
+
+#debug .mwe-container {
+    border:1px solid grey;
+    padding:5px;
+    overflow:auto;
+}
+
+#debug .dep-container {
+    flex:1;
+    justify-content:center;
+    background-color: lightgrey;
+    overflow:hidden;
+    display:flex;
+}
+
+#debug .dep-container svg {
+    width:100%;
+    height:100%;
+    border:1px dotted red;
+}
+
+table, td, th {
+    border: 1px solid black;
+}
+
+table {
+    border-collapse: collapse;
 }

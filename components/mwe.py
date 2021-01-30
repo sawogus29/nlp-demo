@@ -28,6 +28,8 @@ def mwe_component(doc):
         for token, iob in zip(sent, iobs):
             token._.mwe_iob = iob
         
+        gather_MWEs(sent)
+        
     for sent in doc.sents:
         set_mwe(sent)
 
@@ -209,7 +211,7 @@ def get_mwes(span):
     mwes = set() 
     for token in span:
         if token._.mwe is not None:
-            mwes.add(token.mwe)
+            mwes.add(tuple(token._.mwe))
     return mwes
         
 def get_model_and_tokenizer():
@@ -222,6 +224,34 @@ def get_model_and_tokenizer():
         _model.to(device)
     
     return _model, _tknz
+
+def gather_MWEs(sent):
+    #TODO: Although validate_iob() is not perpect,
+    # gather_MWEs() suppose it is perfect for convinience.
+    BI = []
+    bi = []
+    for token in sent:
+        if token._.mwe_iob == 'B':
+            if BI:
+                BI = []
+            BI.append(token)
+            token._.mwe = BI
+
+        elif token._.mwe_iob == 'I':
+            assert BI
+            BI.append(token)
+            token._.mwe = BI
+
+        elif token._.mwe_iob == 'b':
+            if bi:
+                bi = []
+            bi.append(token)
+            token._.mwe = bi
+        
+        elif token._.mwe_iob == 'i':
+            assert bi
+            bi.append(token)
+            token._.mwe = bi
 
 label_map = {'O':0, 'B':1, 'I':2, '0':3, 'o':4,'b':5, 'i':6}
 id_to_label = {0:'O', 1:'B', 2:'I', 3:'0', 4:'o', 5:'b', 6:'i'}
