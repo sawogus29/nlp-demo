@@ -94,3 +94,7 @@ table, td, th {
 table {
     border-collapse: collapse;
 }
+
+.word[data-sel] {
+    border: 3px solid red;
+}

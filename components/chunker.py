@@ -27,6 +27,9 @@ def verb_handler(token):
         # TODO: 
         # - expand to verbal-MWE
         # - common subj, obj of multiple verb
+        if token.dep_ == 'xcomp':
+            return
+
         children_and_self = list(token.lefts) + [token] + list(token.rights)
         spans = []
         span = None
@@ -40,6 +43,17 @@ def verb_handler(token):
                 else:
                     spans.append(span)
                     span = (child.i, child.i+1)
+            
+            # Special Case: xcomp
+            if child.dep_ == 'xcomp':
+                # recursive
+                if token.lemma_ == "be":
+                    comp_handler(child)
+                else:
+                    verb_handler(child)
+                    if span is not None:
+                        span = (span[0], child.i+1)
+            
         
         if span is not None:
             spans.append(span)
@@ -50,12 +64,13 @@ def verb_handler(token):
             register_self_to_tokens(v_span, 'verb')
 
     if token.pos_ in verb_like:
+        # if token.dep_ == 'xcomp', exapnd_verb() returns immediately
         expand_verb(token)
 
     for child in token.children:
         # print(child)
         group = dep_to_group.get(child.dep_, None)
-        if group == 'verb':
+        if group == 'verb' or child.dep_ == 'xcomp':
             continue
 
         handlers.get(group, dummy_handler)(child)
@@ -135,15 +150,15 @@ def generate_html(sent, word_tag=True):
 group_to_dep = {'subj':['csubj', 'nsubj', 'csubjpass', 'nsubjpass'], 
             'verb':['aux', 'neg', 'auxpass'],
             'obj': ['dative', 'dobj'],
-            'comp': ['attr', 'acomp', 'ccomp', 'xcomp'],
-            'aux': ['prep', 'pcomp', 'advcl', 'relcl', 'agent', 'advmod']}
+            'comp': ['attr', 'acomp'],
+            'aux': ['prep', 'pcomp', 'advcl', 'relcl', 'agent', 'advmod', 'dep', 'ccomp']}
             
 dep_to_group = dict()
 for k, vs in group_to_dep.items():
     for v in vs:
         dep_to_group[v] = k
 
-recursive = set(['conj', 'advcl'])
+recursive = set(['conj', 'advcl', 'ccomp'])
 verb_like = set(['VERB', 'AUX'])
 
 handlers = {'subj':subj_handler, 'obj':obj_handler,

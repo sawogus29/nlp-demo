@@ -74,6 +74,8 @@
         //     return false;
         // }
         ps = document.querySelectorAll("#root > p");
+        prevClickedP = null;
+        prevClickedWord = null;
         for(let p of ps){
             p.addEventListener("click", function(e){
                 let i = e.currentTarget.dataset.index;
@@ -83,14 +85,35 @@
                     svgPanZoom(dbg.querySelector("svg")).destroy()
                 }
                 dbg.innerHTML = '';
-                dbg.appendChild(dbg_elem.cloneNode(true));
+                dbg_elem_clone = dbg_elem.cloneNode(true);
+                dbg_elem_clone.id = "";
+                dbg.appendChild(dbg_elem_clone);
                 
                 svgPanZoom(dbg.querySelector("svg"), {
                   zoomEnabled: true,
                   controlIconsEnabled: true,
                   fit: true,
                   center: true
-                }); 
+                });
+                
+                // Highlight word
+                if( prevClickedWord != null ) {
+                    delete(prevClickedWord.dataset.sel);
+                }
+
+                if(e.target.className == "word"){
+                    queryText = e.target.innerText;
+                    ts = dbg.querySelector("svg").querySelectorAll("text");
+                    for(let t of ts){
+                        if(t.textContent == queryText){
+                            t.style.textShadow = "0 0 10px red";
+                        }
+                    }
+                    e.target.dataset.sel = 1;
+                    prevClickedWord = e.target;
+                }
+
+                prevClickedP = e.currentTarget;
             });
         }
     </script>
