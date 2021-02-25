@@ -14,15 +14,28 @@
         <label for="input_str">Input:</label>
         <textarea type="text" name="input_str" id="input_str" cols="100" rows="10">{{ request.form['input_str'] }}</textarea>
         <input type="submit" value="Submit" style="width: 100px; height: 50px;"/>
+        <input type="button" onclick="copyToClipboard()" value="copy">
     </form>
+<div id="vanila" style="display:none">
+{% if docs is defined %}
+{% for doc in docs %}
+{% set outer_loop = loop %}
+<p id="para-{{ outer_loop.index }}" data-index="{{outer_loop.index }}"> 
+{% for sent in doc.sents %} 
+{{ sent._.generate_html()|safe }} 
+{% endfor %} 
+</p>
+{% endfor %}
+{% endif %}
+</div>
     <div id="wrapper">
         <div id="root">
         {% if docs is defined %}
         {% for doc in docs %}
         {% set outer_loop = loop %}
         {% for sent in doc.sents %}
-            <p id="sent-{{ outer_loop.index }}-{{ loop.index }}" data-index="{{outer_loop.index }}-{{ loop.index }}">
-                {{ sent._.generate_html()|safe }}
+            <p id="sent-{{ outer_loop.index }}-{{ loop.index }}" data-index="{{outer_loop.index }}-{{ loop.index }}"> 
+                {{ sent._.generate_html()|safe }} 
             </p>
         {% endfor %}
         {% endfor %}
@@ -59,20 +72,6 @@
     {% endif %}
     </div>
     <script>
-        // document.querySelector("#myform").addEventListener("submit", onSubmit)
-        // function onSubmit(e){
-        //     e.preventDefault();
-        //     formData = new FormData(e.target);
-        //     var xhttp = new XMLHttpRequest();
-        //     xhttp.onreadystatechange = function() {
-        //         if (this.readyState == 4 && this.status == 200) {
-        //             document.getElementById("root").innerHTML = this.responseText;
-        //         }
-        //     };
-        //     xhttp.open("POST", "{{ url_for('pipe') }}");
-        //     xhttp.send(formData);
-        //     return false;
-        // }
         ps = document.querySelectorAll("#root > p");
         prevClickedP = null;
         prevClickedWord = null;
@@ -115,6 +114,17 @@
 
                 prevClickedP = e.currentTarget;
             });
+        }
+
+        function copyToClipboard(){
+            const vanila = document.querySelector("#vanila");
+            var t = document.createElement("textarea");
+            document.body.appendChild(t);
+            t.value = vanila.innerHTML;
+            console.log(vanila.innerHTML);
+            t.select();
+            document.execCommand('copy');
+            document.body.removeChild(t);
         }
     </script>
 </body>
