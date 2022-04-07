@@ -1,5 +1,5 @@
 # nlp-demo (Aborted)
-This repository is a subproject of 'E-book using NLP' project. The project has been aborted since Feb 2021.
+This repository is a subproject of [E-book using NLP](https://github.com/sawogus29/ebook-app) project. The project has been aborted since Feb 2021.
 
 ![image](https://user-images.githubusercontent.com/37795048/162201264-c166fcb5-4506-4cfa-ac72-6a42feb8bfd3.png)
 
@@ -12,7 +12,7 @@ Supported NLP features are the followings.
 - MWE(Multiword Expression) Identification
 - Sentence structure analysis: chunks words in a sentence into clauses(subj, verb, obj, comp, aux)
 
-## Dependancies
+## Dependencies
 - Spacy 3.0+
 - Flask
 - PyTorch
