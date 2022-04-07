@@ -1,5 +1,5 @@
 # nlp-demo (Aborted)
-**This project has been aborted since Feb 2021**
+**This project is incomplete (aborted since Feb 2021).**
 
 This repository is a subproject of [English E-book with NLP](https://github.com/sawogus29/ebook-app) project. 
 
